@@ -6,7 +6,7 @@ const Users = require('../users/users-model.js');
 router.post('/register', (req, res) => {
   let user = req.body;
 
-  const hash = bcrypt.hashSync(user.password, 8);
+  const hash = bcrypt.hashSync(user.password, 10);
 
   user.password = hash;
 
@@ -26,6 +26,7 @@ router.post('/login', (req, res) => {
     .first()
     .then(user => {
       if (user && bcrypt.compareSync(password, user.password)) {
+        req.session.username = user.username;
         res.status(200).json({ message: `Welcome ${user.username}!` });
       } else {
         res.status(401).json({ message: 'Invalid Credentials' });
@@ -35,5 +36,12 @@ router.post('/login', (req, res) => {
       res.status(500).json(error);
     });
 });
+
+router.delete('/', (req, res) => {
+  if (req.session) {
+    req.session.destroy();
+  }
+  res.status(200).json({ message: 'later' });
+})
 
 module.exports = router;
